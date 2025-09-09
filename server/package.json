@@ -1,0 +1,30 @@
+{
+  "name": "edu-web-server",
+  "version": "1.0.0",
+  "description": "Backend server for educational web application",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "nodemon index.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^3.0.2",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2",
+    "jsonwebtoken": "^9.0.2",
+    "mysql2": "^3.14.3"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.2"
+  },
+  "keywords": [
+    "education",
+    "sqlite",
+    "express",
+    "api"
+  ],
+  "author": "Your Team",
+  "license": "MIT"
+}

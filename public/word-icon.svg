@@ -1,0 +1,31 @@
+<svg width="400" height="250" viewBox="0 0 400 250" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="400" height="250" fill="#f8f9fa"/>
+  
+  <!-- Word Document Icon -->
+  <g transform="translate(100, 50)">
+    <!-- Main document body -->
+    <rect x="0" y="0" width="120" height="150" fill="#2b579a" rx="8"/>
+    
+    <!-- Document pages effect -->
+    <rect x="8" y="-8" width="120" height="150" fill="#185abd" rx="8"/>
+    <rect x="16" y="-16" width="120" height="150" fill="#ffffff" rx="8" stroke="#e0e0e0" stroke-width="1"/>
+    
+    <!-- Word "W" letter -->
+    <text x="76" y="100" font-family="Arial, sans-serif" font-size="48" font-weight="bold" fill="#2b579a" text-anchor="middle">W</text>
+    
+    <!-- Document lines -->
+    <g transform="translate(140, 20)">
+      <rect x="0" y="0" width="60" height="4" fill="#2b579a" rx="2"/>
+      <rect x="0" y="15" width="50" height="3" fill="#666" rx="1.5"/>
+      <rect x="0" y="25" width="55" height="3" fill="#666" rx="1.5"/>
+      <rect x="0" y="35" width="45" height="3" fill="#666" rx="1.5"/>
+      <rect x="0" y="45" width="60" height="3" fill="#666" rx="1.5"/>
+      <rect x="0" y="55" width="40" height="3" fill="#666" rx="1.5"/>
+      <rect x="0" y="65" width="55" height="3" fill="#666" rx="1.5"/>
+      <rect x="0" y="75" width="50" height="3" fill="#666" rx="1.5"/>
+      <rect x="0" y="85" width="45" height="3" fill="#666" rx="1.5"/>
+      <rect x="0" y="95" width="60" height="3" fill="#666" rx="1.5"/>
+    </g>
+  </g>
+</svg>
