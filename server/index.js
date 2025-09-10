@@ -13,24 +13,24 @@ app.set('trust proxy', 1);
 
 /* ===================== CORS ===================== */
 // عدّلي القائمة بإضافة دومين الفرونت بعد النشر (Vercel)
-const allowedOrigins = [
-  'http://localhost:3000',
-  'http://localhost:5173',
-  // 'https://your-frontend.vercel.app',  // <-- أضيفيه بعد النشر
-];
 
-// خيارات CORS — تسمح بالأصول المحددة + headers/methods الشائعة
+const allowedOrigins = (process.env.CORS_ORIGINS || '')
+  .split(',')
+  .map(s => s.trim())
+  .filter(Boolean);
+
+const normalize = (url) => url.replace(/\/+$/, ''); // يشيل السلاش الأخير
 const corsOptions = {
   origin: (origin, cb) => {
-    // السماح لطلبات بدون Origin (Health/Postman)
-    if (!origin) return cb(null, true);
-    if (allowedOrigins.includes(origin)) return cb(null, true);
-    return cb(new Error(`Not allowed by CORS: ${origin}`));
+    if (!origin) return cb(null, true); // Health/Postman
+    const ok = allowedOrigins.map(normalize).includes(normalize(origin));
+    return ok ? cb(null, true) : cb(new Error(`Not allowed by CORS: ${origin}`));
   },
-  credentials: true, // لو بتستخدمي كوكيز/withCredentials
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
+  methods: ['GET','POST','PUT','PATCH','DELETE','OPTIONS'],
+  allowedHeaders: ['Content-Type','Authorization'],
 };
+
 
 // لازم يكون قبل أي routes
 app.use(cors(corsOptions));
