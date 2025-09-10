@@ -6,23 +6,23 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 5001;
+const PORT = process.env.PORT || 3000; // ✅ fallback آمن محليًا
 
-// لو بتستخدمي كوكيز خلف Proxy (Railway/Vercel)، خليه 1
+// لو بتستخدمي كوكيز خلف Proxy (Railway/Vercel)
 app.set('trust proxy', 1);
 
 /* ===================== CORS ===================== */
-// عدّلي القائمة بإضافة دومين الفرونت بعد النشر (Vercel)
-
 const allowedOrigins = (process.env.CORS_ORIGINS || '')
   .split(',')
   .map(s => s.trim())
   .filter(Boolean);
 
-const normalize = (url) => url.replace(/\/+$/, ''); // يشيل السلاش الأخير
+const normalize = (url) => (url ? url.replace(/\/+$/, '') : url);
+
 const corsOptions = {
   origin: (origin, cb) => {
-    if (!origin) return cb(null, true); // Health/Postman
+    // طلبات أدوات/صحة بدون Origin
+    if (!origin) return cb(null, true);
     const ok = allowedOrigins.map(normalize).includes(normalize(origin));
     return ok ? cb(null, true) : cb(new Error(`Not allowed by CORS: ${origin}`));
   },
@@ -31,10 +31,7 @@ const corsOptions = {
   allowedHeaders: ['Content-Type','Authorization'],
 };
 
-
-// لازم يكون قبل أي routes
 app.use(cors(corsOptions));
-// رد على طلبات preflight لكل المسارات
 app.options('*', cors(corsOptions));
 /* ================================================= */
 
@@ -58,20 +55,10 @@ app.get('/api/health', (req, res) => {
   });
 });
 
-// Error handler عام
-app.use((err, req, res, next) => {
-  console.error('Error:', err?.message || err);
-  res.status(500).json({
-    success: false,
-    message: 'Internal server error',
-    error: process.env.NODE_ENV === 'development' ? (err?.message || err) : 'Something went wrong'
-  });
-});
-
-// Bootstrap
 const startServer = async () => {
   try {
     console.log('Starting server...');
+    console.log('Allowed origins:', allowedOrigins); // ✅ تشخيص CORS
 
     console.log('Loading modules...');
     const { checkConnection } = await import('./config/db.js');
@@ -81,7 +68,7 @@ const startServer = async () => {
     const courseRoutes = (await import('./routes/courseRoutes.js')).default;
     console.log('Modules loaded successfully');
 
-    // routes (بعد تفعيل CORS)
+    // routes (بعد CORS)
     app.use('/api/auth', authRoutes);
     app.use('/api/courses', courseRoutes);
     console.log('Routes configured');
@@ -96,15 +83,15 @@ const startServer = async () => {
     });
 
     console.log('Initializing MySQL database...');
-    await checkConnection();              // يتأكد من الاتصال
+    await checkConnection();
     console.log('Database connection established');
 
     console.log('Creating database tables...');
-    await createAllTables();              // ينشئ الجداول لو ناقصة
+    await createAllTables();
     console.log('Database tables created');
 
     console.log('Inserting sample data...');
-    await insertSampleData();             // يضيف بيانات تجريبية لو ناقصة
+    await insertSampleData();
     console.log('Sample data inserted');
 
     console.log('Database initialization completed successfully');
@@ -115,12 +102,27 @@ const startServer = async () => {
   }
 
   console.log('Starting Express server...');
-  app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+  const server = app.listen(PORT, () => {
+    console.log(`✅ Server running on port ${PORT}`);
     console.log(`Health check: http://localhost:${PORT}/api/health`);
     console.log('Using MySQL database');
     console.log('Server ready to accept requests!');
   });
+
+  // ✅ مسك أخطاء المنفذ
+  server.on('error', (err) => {
+    console.error('Server listen error:', err);
+  });
 };
 
 startServer().catch(console.error);
+
+// ✅ Error handler عام (في النهاية بعد كل شيء)
+app.use((err, req, res, next) => {
+  console.error('Error:', err?.message || err);
+  res.status(500).json({
+    success: false,
+    message: 'Internal server error',
+    error: process.env.NODE_ENV === 'development' ? (err?.message || err) : 'Something went wrong'
+  });
+});
