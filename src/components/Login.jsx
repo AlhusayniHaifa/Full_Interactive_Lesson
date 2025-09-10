@@ -16,9 +16,11 @@ const Login = () => {
       [e.target.name]: e.target.value
     });
   };
+const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (loading) return;       
     setError('');
 
     if (!formData.email || !formData.password) {
@@ -26,15 +28,23 @@ const Login = () => {
       return;
     }
 
-    try {
-      const response = await authAPI.login(formData);
-      localStorage.setItem('isAuthenticated', 'true');
-      localStorage.setItem('userEmail', formData.email);
-      localStorage.setItem('token', response.token);
-      navigate('/dashboard');
-    } catch (error) {
-      setError(error.message || 'Login failed');
-    }
+  try {
+    setLoading(true);                           // ⬅️ بدأ التحميل
+    const response = await authAPI.login(formData);
+
+    const token = response?.token || response?.data?.token; // احتياط لو رجع data.token
+    if (!token) throw new Error('No token returned');
+
+    localStorage.setItem('isAuthenticated', 'true');
+    localStorage.setItem('userEmail', formData.email);
+    localStorage.setItem('token', token);
+
+    navigate('/dashboard');
+  } catch (error) {
+    setError(error?.message || 'Login failed');
+  } finally {
+    setLoading(false);                          // ⬅️ إنهاء التحميل
+  }
   };
 
   return (
@@ -190,6 +200,3 @@ const Login = () => {
 };
 
 export default Login;
-
-
-const API_URL = 'https://your-backend-url.railway.app';
